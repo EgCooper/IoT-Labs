@@ -1,0 +1,30 @@
+.pio/
+.pioenvs/
+.vscode/
+*.elf
+*.bin
+*.hex
+*.map
+*.dSYM
+*.a
+*.o
+*.d
+*.lst
+*.elf
+*.pio\build\
+
+# PlatformIO-specific
+build/
+libdeps/
+
+# Wokwi / simulator files
+wokwi.toml
+
+# Temporary files
+*.log
+*.tmp
+*~
+
+# System files
+.DS_Store
+Thumbs.db
