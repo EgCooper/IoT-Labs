@@ -52,3 +52,12 @@ En este pequeño laboratorio, uso un ESP32 junto con un sensor DHT22 para leer l
 
 - El sensor DHT22 puede tardar unos segundos en entregar la primera lectura válida.
 - Si ves `Error leyendo el sensor`, revisa el cableado y reinicia el ESP32.
+
+
+## Capturas
+
+![alt text](/imgs/diagraam.png)
+
+![alt text](/imgs/outputs.png)
+
+
