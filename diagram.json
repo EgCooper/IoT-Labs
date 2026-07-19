@@ -4,7 +4,7 @@
   "editor": "wokwi",
   "parts": [
     { "type": "wokwi-arduino-nano", "id": "nano", "top": 0, "left": 0, "attrs": {} },
-    { "type": "wokwi-ntc-temperature-sensor", "id": "ntc1", "top": -80, "left": 280, "attrs": { "temperature": "25" } },
+    { "type": "wokwi-ntc-temperature-sensor", "id": "ntc1", "top": -80, "left": 280, "attrs": { "temperature": "23" } },
     { "type": "wokwi-resistor", "id": "r1", "top": -20, "left": 200, "attrs": { "value": "10000" }, "rotate": 90 },
     { "type": "wokwi-lcd1602", "id": "lcd1", "top": 160, "left": 160, "attrs": { "pins": "i2c", "i2cAddress": "0x27" } }
   ],

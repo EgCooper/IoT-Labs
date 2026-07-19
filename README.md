@@ -81,3 +81,9 @@ Puedes cambiar estos valores en `src/main.cpp`:
 ![alt text](img/diagramjson.png)
 
 ![alt text](img/view.png)
+
+## Demo Video
+
+![alt text](image.png)
+
+[Ir al video](https://drive.google.com/drive/folders/1DuEENFiGhsPQ8bfkrApgRG3ui8Knil6r?usp=sharing)

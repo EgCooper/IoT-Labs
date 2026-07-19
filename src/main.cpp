@@ -3,7 +3,7 @@
 #include <math.h>
 
 // --- Configuracion NTC ---
-#define NTC_PIN     A0
+#define NTC_PIN     A0 // pin analógico donde está conectado el NTC
 #define BETA        3950        // coeficiente Beta del NTC
 #define R0          10000.0     // resistencia nominal a 25 C (10k ohm)
 #define T0          298.15      // 25 C en Kelvin
@@ -24,7 +24,7 @@ float leerTemperatura() {
 
   return tempK - 273.15; // Kelvin a Celsius
 }
-
+// --- Setup y loop ---
 void setup() {
   Serial.begin(9600);
 
@@ -37,7 +37,7 @@ void setup() {
   delay(2000);
   lcd.clear();
 }
-
+// --- Loop principal ---
 void loop() {
   float temperatura = leerTemperatura();
 
@@ -52,6 +52,6 @@ void loop() {
   lcd.setCursor(0, 1);
   lcd.print(temperatura, 1);
   lcd.print(" C          ");
-
+// --- Espera 2 segundos ---
   delay(2000);
 }
