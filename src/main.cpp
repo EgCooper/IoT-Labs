@@ -7,12 +7,12 @@
 // Define the pin and type of DHT sensor
 #define DHTPIN 15
 #define DHTTYPE DHT22
-
+// Create an instance of the DHT sensor
 DHT dht(DHTPIN, DHTTYPE);
 
 // Initialize the DHT sensor
 void setup() {
-  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); // deshabilitar brownout detector
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
   delay(1000);
   Serial.begin(115200);
   dht.begin();
@@ -30,7 +30,7 @@ void loop() {
     Serial.println("Error leyendo el sensor");
     return;
   }
-
+// Print the humidity and temperature values to the Serial Monitor
   Serial.print("Humedad: ");
   Serial.print(humedad);
   Serial.println(" %");

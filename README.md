@@ -60,4 +60,10 @@ En este pequeño laboratorio, uso un ESP32 junto con un sensor DHT22 para leer l
 
 ![alt text](/imgs/outputs.png)
 
+## Demo Video
+
+![alt text](/imgs/preview.png)
+
+
+[Ir al video](https://drive.google.com/drive/folders/1DuEENFiGhsPQ8bfkrApgRG3ui8Knil6r?usp=sharing)
 
