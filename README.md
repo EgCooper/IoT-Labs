@@ -128,13 +128,17 @@ HTTP 200 | respuesta: 5
 - Si ThingSpeak responde `0`, revisa la API key y que el intervalo sea ≥ 15 s.
 
 ## Capturas
+![alt text](/imgs/diagram.png)
 
-![alt text](/imgs/diagraam.png)
+![alt text](/imgs/output.png)
 
-![alt text](/imgs/outputs.png)
+![alt text](/imgs/data.png)
 
 ## Demo Video
 
-![alt text](/imgs/preview.png)
+![alt text](/imgs/video.png)
 
-[Ir al video](https://drive.google.com/drive/folders/1DuEENFiGhsPQ8bfkrApgRG3ui8Knil6r?usp=sharing)
+
+
+
+

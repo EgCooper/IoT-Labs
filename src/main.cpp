@@ -13,10 +13,10 @@ DHT dht(DHTPIN, DHTTYPE);
 // if you use real components change this to your wifi credentials
 // also if you use wokwi and platform and you dont have real componentes, 
 // you must use the wokwi wifi credentials : ssid : Wokwi-GUEST and password : empty
-const char* WIFI_SSID     = "";
+const char* WIFI_SSID     = "Wokwi-GUEST";
 const char* WIFI_PASSWORD = "";
 // Put your api key from thingspeak
-const char* TS_API_KEY    = "";
+const char* TS_API_KEY    = "ODXXWFSKZB31JGF1";
 
 void conectarWiFi() {
   WiFi.mode(WIFI_STA);

@@ -4,7 +4,7 @@
   "editor": "wokwi",
   "parts": [
     { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
-    { "type": "wokwi-dht22", "id": "dht1", "top": 80, "left": 300, "attrs": { "temperature": "38.1", "humidity": "65" } }
+    { "type": "wokwi-dht22", "id": "dht1", "top": 80, "left": 300, "attrs": { "temperature": "20", "humidity": "35" } }
   ],
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
