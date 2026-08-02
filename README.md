@@ -1,58 +1,54 @@
-# Laboratorio: Control de acceso (Keypad + Servo + LCD)
+# Laboratorio: Control de acceso remoto (MQTT)
 
-Sistema de acceso con ESP32: se ingresa una contraseña de 6 caracteres por el keypad, se valida y se controla un servo (cerradura), un LCD I2C y LEDs de estado. Proyecto con **PlatformIO** y simulación en **Wokwi**.
+Extiende la Actividad 1 con WiFi + MQTT: bloquear/desbloquear el keypad, abrir la puerta en remoto, actualizar la contraseña y publicar eventos de acceso.
 
 ## Componentes
 
-- ESP32 DevKit
-- Keypad matricial 4x4
-- LCD 1602 I2C
-- Servo
-- LED verde y LED rojo
-- Resistencias 220 Ω
-- Potenciómetro (conectado a ADC; material del lab)
+Los mismos de la Actividad 1 (ESP32, keypad, LCD I2C, servo, LEDs, resistencias, potenciómetro) más conexión de red.
 
-## Librerías (`platformio.ini`)
+## Librerías
 
-- Keypad
-- ESP32Servo
-- LiquidCrystal_I2C
+- Keypad, ESP32Servo, LiquidCrystal_I2C
+- WiFi, PubSubClient, ArduinoJson
+
+## Red / MQTT
+
+| Parámetro | Valor |
+|-----------|--------|
+| WiFi (Wokwi) | SSID `Wokwi-GUEST`, password vacía |
+| Broker | `broker.hivemq.com:1883` |
+| Tópico | `monitoreo/puerta-acceso1332` |
+| Clave por defecto | `123456` (6 caracteres) |
+
+## Acciones remotas (callback MQTT)
+
+Publicá en el tópico (texto plano o JSON):
+
+| Acción | Texto plano | JSON |
+|--------|-------------|------|
+| Bloquear keypad + LED rojo + aviso | `bloquear` | `{"action":"bloquear"}` |
+| Desbloquear y estado inicial | `desbloquear` | `{"action":"desbloquear"}` |
+| Abrir puerta remota | `abrir` | `{"action":"abrir"}` |
+| Actualizar contraseña | `actualizar:654321` | `{"action":"actualizar","password":"654321"}` |
+
+## Eventos publicados por el ESP32
+
+Tras validar una clave local:
+
+```json
+{"evento":"acceso_concedido","clave":"123456","ts":12}
+{"evento":"acceso_denegado","clave":"000000","ts":15}
+```
+
+## Cómo probar con cliente MQTT
+
+1. Compilá y simulá en Wokwi (`pio run` + extensión Wokwi).
+2. Abrí [HiveMQ Web Client](https://www.hivemq.com/demos/websocket-client/).
+3. Conectá a `broker.hivemq.com`.
+4. Suscribite a `monitoreo/puerta-acceso1332`.
+5. Publicá `bloquear`, luego `desbloquear`, `abrir`, `actualizar:654321`.
+6. En el keypad de Wokwi probá claves y observá los eventos en el cliente.
 
 ## Cableado
 
-| Dispositivo | Señal | GPIO ESP32 |
-|-------------|--------|------------|
-| Servo | PWM | 13 |
-| LED verde | vía 220 Ω | 25 |
-| LED rojo | vía 220 Ω | 26 |
-| LCD I2C | SDA / SCL | 21 / 22 |
-| Keypad filas R1–R4 | | 19, 18, 5, 17 |
-| Keypad columnas C1–C4 | | 16, 4, 15, 23 |
-| Potenciómetro | SIG | 34 |
-
-Servo: `V+` → 5V, `GND` → GND. LCD: `VCC` → 3V3, `GND` → GND. Dirección I2C del LCD: `0x27`.
-
-## Contraseña
-
-Almacenada en código, tamaño 6. Valor por defecto: `123456` (cambiar en `src/main.cpp`).
-
-## Flujo
-
-1. Estado inicial: servo en **0°** (cerrado), LEDs apagados, LCD pide la clave.
-2. Se leen **6** caracteres del keypad (se muestran como `*`).
-3. Si la clave es correcta: mensaje de bienvenida, servo a **180°**, LED verde ON.
-4. Si es incorrecta: mensaje de alerta, servo en **0°**, LED rojo ON.
-5. Tras **3 segundos** se vuelve al estado inicial.
-
-## Cómo usarlo
-
-1. Abrí el proyecto en VS Code / Cursor con la extensión PlatformIO.
-2. Compilá con `PlatformIO: Build` (`pio run`).
-3. Simulá con la extensión Wokwi (usa `diagram.json` y `wokwi.toml`).
-4. Ingresá 6 teclas en el keypad del simulador.
-
-## Funciones principales
-
-- `leerSeisCaracteres()` — lee 6 caracteres del panel matricial.
-- `imprimirMensajes(l1, l2)` — muestra dos cadenas en el LCD.
-- `estadoInicial()` — servo cerrado, LEDs off, buffer vacío, mensaje de bienvenida.
+Igual que Actividad 1 (servo 13, LEDs 25/26, LCD 21/22, keypad 19/18/5/17 y 16/4/15/23, pot 34).
