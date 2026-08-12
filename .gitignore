@@ -1,19 +1,12 @@
-# PlatformIO build output
+# PlatformIO
 .pio/
 
-# VS Code workspace files
+# VS Code
 .vscode/
 
-# Project-specific files
-*.user
-*.vspscc
-*.vscode-test
-
-# OS temporary files
+# OS / editor
 .DS_Store
 Thumbs.db
-
-# Editor temporary files
 *~
 *.swp
 *.swo

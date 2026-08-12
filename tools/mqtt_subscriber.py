@@ -1,8 +1,8 @@
 """
 Suscriptor MQTT opcional en Python.
-Útil para verificar el tópico sin abrir el segundo ESP32.
+Sirve para verificar el topico sin abrir el segundo ESP32.
 
-  pip install paho-mqtt
+  pip install -r tools/requirements.txt
   python tools/mqtt_subscriber.py
 """
 
@@ -37,6 +37,7 @@ def main():
     client.on_connect = on_connect
     client.on_message = on_message
     client.connect(BROKER, PORT, keepalive=60)
+    print(f"[PY] Conectando a {BROKER}:{PORT} ...")
     client.loop_forever()
 
 

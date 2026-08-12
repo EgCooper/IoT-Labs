@@ -1,63 +1,87 @@
-# Informe técnico — Red IoT MQTT (Publicador / Suscriptor)
+# Informe tecnico — Red IoT MQTT (Publicador / Suscriptor)
 
 **Laboratorio:** L5-A1  
 **Plataforma:** ESP32 + Wokwi + PlatformIO  
-**Broker:** HiveMQ público (`broker.hivemq.com:1883`)  
-**Tópico:** `home/hall/temperature1`
+**Broker:** HiveMQ publico (`broker.hivemq.com:1883`)  
+**Topico:** `home/hall/temperature1`
+
+## Repositorio
+
+- Repo: https://github.com/EgCooper/IoT-Labs
+- Rama: `L5-A1`
+- Publicador: [`publisher/src/publisher.ino`](publisher/src/publisher.ino)
+- Suscriptor: [`subscriber/src/subscriber.ino`](subscriber/src/subscriber.ino)
+- Suscriptor Python (opcional): [`tools/mqtt_subscriber.py`](tools/mqtt_subscriber.py)
 
 ---
 
 ## 1. Objetivo
 
-Implementar una red IoT mínima con:
+Implementar una red IoT comprendida entre:
 
-- una red WiFi (la red pública de Wokwi: `Wokwi-GUEST`);
-- un broker MQTT público;
-- un ESP32 **publicador** que genera datos simulados;
-- un ESP32 **suscriptor** que consume esos datos y los muestra por serial y LCD.
+- una red WiFi publica de Wokwi (`Wokwi-GUEST`);
+- un broker MQTT publico (HiveMQ);
+- un controlador ESP32 **publicador**;
+- un controlador ESP32 **suscriptor**;
 
-Además se describe cómo capturar el tráfico con Wireshark/tshark y se analizan vulnerabilidades de la conexión.
+para simular la publicacion y el consumo de datos (lecturas ficticias de temperatura y humedad).
+
+El entregable incluye codigo fuente `.ino`, diagrama de arquitectura, guia de capturas (serial + Wireshark) y reflexion sobre vulnerabilidades.
 
 ---
 
-## 2. Arquitectura y protocolos
+## 2. Broker y topico de prueba
+
+| Parametro | Valor |
+|-----------|--------|
+| Broker | `broker.hivemq.com` |
+| Puerto ESP32 | `1883` (MQTT sin TLS) |
+| Puerto cliente web HiveMQ | `8884` (WebSocket) |
+| Topico | `home/hall/temperature1` |
+| WiFi Wokwi | SSID `Wokwi-GUEST`, password vacia |
+
+Referencia broker: https://www.hivemq.com/mqtt/public-mqtt-broker/
+
+---
+
+## 3. Arquitectura y protocolos
 
 ```mermaid
 flowchart LR
-  subgraph Wokwi["Red WiFi Wokwi-GUEST (IEEE 802.11)"]
+  subgraph Wokwi["Red WiFi Wokwi-GUEST IEEE 802.11"]
     PUB["ESP32 Publicador<br/>publisher.ino"]
     SUB["ESP32 Suscriptor<br/>subscriber.ino + LCD"]
-    AP["AP virtual Wokwi<br/>IP típica 10.13.37.1"]
+    AP["AP virtual Wokwi<br/>IP tipica 10.13.37.x"]
     PUB --- AP
     SUB --- AP
   end
 
-  AP -->|"IP / TCP :1883"| BROKER["HiveMQ público<br/>broker.hivemq.com"]
+  AP -->|"IPv4 / TCP :1883"| BROKER["HiveMQ publico<br/>broker.hivemq.com"]
+  PUB -->|"MQTT PUBLISH<br/>JSON temp/hum"| BROKER
   BROKER -->|"MQTT PUBLISH<br/>home/hall/temperature1"| SUB
-  PUB -->|"MQTT PUBLISH<br/>payload JSON"| BROKER
 ```
 
-### 2.1 Roles
+### 3.1 Roles
 
-| Nodo | Función |
+| Nodo | Funcion |
 |------|---------|
-| ESP32 publicador | Se conecta a WiFi y al broker. Cada 4 s publica un JSON con temperatura y humedad simuladas. |
-| ESP32 suscriptor | Se suscribe al mismo tópico. Imprime el payload en Serial y lo decodifica en el LCD. |
-| Broker HiveMQ | Intermediario publish/subscribe. No guarda estado de la aplicación. |
-| Cliente opcional Python | `tools/mqtt_subscriber.py` para verificar el canal sin el segundo ESP32. |
+| ESP32 publicador | Conecta WiFi + MQTT. Cada 4 s publica un JSON con temperatura y humedad simuladas. |
+| ESP32 suscriptor | Se suscribe al mismo topico. Muestra el payload en Serial y en LCD I2C. |
+| Broker HiveMQ | Intermediario publish/subscribe. |
+| Python opcional | `tools/mqtt_subscriber.py` para verificar el canal sin el segundo ESP32. |
 
-### 2.2 Pila de protocolos
+### 3.2 Pila de comunicacion
 
-| Capa | Protocolo | Observación en esta práctica |
-|------|-----------|------------------------------|
-| Enlace | Wi-Fi 802.11 | SSID `Wokwi-GUEST`, password vacía |
-| Red | IPv4 | El ESP32 obtiene una IP tipo `10.13.37.2` (Wokwi) |
-| Transporte | TCP | Puerto **1883** (MQTT sin TLS) |
-| Aplicación | MQTT 3.1.1 | `CONNECT`, `SUBSCRIBE`, `PUBLISH`, `PINGREQ` |
+| Capa | Protocolo | En esta practica |
+|------|-----------|------------------|
+| Enlace | Wi-Fi 802.11 | `Wokwi-GUEST` |
+| Red | IPv4 | IP tipica del ESP32 en Wokwi: `10.13.37.2` (el enunciado cita `10.0.0.2` como ejemplo) |
+| Transporte | TCP | Puerto **1883** |
+| Aplicacion | MQTT 3.1.1 | `CONNECT`, `SUBSCRIBE`, `PUBLISH`, `PINGREQ` |
 
-No se usa MQTTS (`8883`) ni autenticación. El payload viaja en texto claro.
+No se usa MQTTS (`8883`) ni autenticacion. El payload viaja en texto claro.
 
-### 2.3 Mensaje publicado
+### 3.3 Payload publicado
 
 ```json
 {"device":"pub-esp32-hall","temp":24.3,"hum":51.2,"unit":"C"}
@@ -65,21 +89,21 @@ No se usa MQTTS (`8883`) ni autenticación. El payload viaja en texto claro.
 
 ---
 
-## 3. Código fuente
+## 4. Codigo fuente
 
-Los sketches pedidos por el enunciado están en:
+Sketches `.ino` pedidos por el enunciado:
 
 - Publicador: [`publisher/src/publisher.ino`](publisher/src/publisher.ino)
 - Suscriptor: [`subscriber/src/subscriber.ino`](subscriber/src/subscriber.ino)
 - Alternativa Python: [`tools/mqtt_subscriber.py`](tools/mqtt_subscriber.py)
 
-Librerías: `WiFi`, `PubSubClient`, `LiquidCrystal_I2C`, `ArduinoJson`.
+Bibliotecas: `WiFi`, `PubSubClient`, `LiquidCrystal_I2C`, `ArduinoJson`.
 
 ---
 
-## 4. Cómo ejecutar y obtener capturas
+## 5. Ejecucion y capturas
 
-### 4.1 Compilar
+### 5.1 Compilar
 
 ```powershell
 cd publisher
@@ -89,34 +113,29 @@ cd ..\subscriber
 pio run
 ```
 
-### 4.2 Simular los dos controladores
-
-Hay que levantar **dos** simulaciones Wokwi (dos ventanas o dos instancias):
+### 5.2 Simular los dos controladores
 
 1. Abrir `publisher/diagram.json` → Start simulation.
-2. Abrir `subscriber/diagram.json` → Start simulation.
+2. Abrir `subscriber/diagram.json` → Start simulation (otra instancia).
 
-En el serial del publicador deben verse líneas `[PUB] topic=home/hall/temperature1 ... result=OK`.  
-En el serial y el LCD del suscriptor deben verse la temperatura y la humedad recibidas.
+**Capturas Serial (guardar en `docs/capturas/`):**
 
-Capturas a guardar en `docs/capturas/`:
+- `serial-publicador.png` — lineas `[PUB] topic=home/hall/temperature1 ... result=OK`
+- `serial-suscriptor.png` — lineas `[SUB] topic=... payload=...`
+- `lcd-suscriptor.png` — LCD con Temp / Hum
 
-- `serial-publicador.png`
-- `serial-suscriptor.png`
-- `lcd-suscriptor.png`
-
-### 4.3 Cliente web HiveMQ (opcional)
+### 5.3 HiveMQ Web Client (opcional)
 
 1. https://www.hivemq.com/demos/websocket-client/
-2. Host `broker.hivemq.com`, puerto WebSocket `8884`.
+2. Host `broker.hivemq.com`, puerto `8884`.
 3. Subscribe a `home/hall/temperature1`.
 
-### 4.4 Captura PCAP en Wokwi + Wireshark
+### 5.4 PCAP en Wokwi + Wireshark
 
-1. Con la simulación **en ejecución**, pulsar el icono de **WiFi** del ESP32.
+1. Con la simulacion en ejecucion, pulsar el icono **WiFi** del ESP32.
 2. Descargar el archivo **PCAP**.
 3. Abrirlo en [Wireshark](https://www.wireshark.org/).
-4. Filtros útiles:
+4. Filtros utiles:
 
 ```
 tcp.port == 1883
@@ -125,17 +144,17 @@ ip.addr == 10.13.37.2
 tcp.flags.syn == 1
 ```
 
-En Wokwi la IP del dispositivo suele ser `10.13.37.2` (el enunciado cita `10.0.0.2` como ejemplo; usar la IP que muestre el serial).
+**Que se espera ver**
 
-**Qué se espera ver**
-
-1. Handshake TCP (`SYN`, `SYN-ACK`, `ACK`) hacia la IP pública del broker.
-2. MQTT `CONNECT` del ESP32 y `CONNACK` del broker.
+1. Handshake TCP (`SYN`, `SYN-ACK`, `ACK`) hacia el broker.
+2. MQTT `CONNECT` y `CONNACK`.
 3. En el suscriptor: `SUBSCRIBE` + `SUBACK`.
 4. En el publicador: `PUBLISH` con el JSON **legible en claro**.
 5. Keep-alive `PINGREQ` / `PINGRESP`.
 
-### 4.5 tshark (opcional)
+Capturas sugeridas: `wireshark-tcp.png`, `wireshark-mqtt.png`.
+
+### 5.5 tshark (opcional)
 
 ```powershell
 tshark -r wokwi-wifi.pcap -Y "mqtt" -T fields -e ip.src -e ip.dst -e mqtt.msgtype -e mqtt.topic -e mqtt.msg
@@ -143,90 +162,77 @@ tshark -r wokwi-wifi.pcap -Y "mqtt" -T fields -e ip.src -e ip.dst -e mqtt.msgtyp
 
 ---
 
-## 5. Análisis de vulnerabilidades
+## 6. Vulnerabilidades encontradas
 
-La práctica usa un **broker público, puerto 1883, sin usuario/contraseña y sin TLS**. Eso no es un “bug” del código: es el escenario típico de un laboratorio, y deja visibles varios riesgos reales.
+La practica usa un **broker publico, puerto 1883, sin usuario/contraseña y sin TLS**. Eso deja visibles riesgos reales.
 
-### 5.1 Confidencialidad — tráfico en claro
+### 6.1 Trafico en claro (confidencialidad)
 
-Cualquiera con el PCAP (o en la misma red, en un escenario físico) lee el payload. En Wireshark, el campo MQTT Publish Message muestra `temp` y `hum` sin descifrar.
+Cualquiera con el PCAP lee el payload. En Wireshark, el campo MQTT Publish Message muestra `temp` y `hum` sin cifrar.
 
-**Riesgo:** filtración de telemetría (o de claves, si alguien publicara secretos por el mismo canal).
+### 6.2 MITM (Man-in-the-Middle)
 
-### 5.2 MITM (Man-in-the-Middle)
+Sin TLS no hay autenticacion del servidor ni integridad del canal. Un atacante puede leer, modificar o inyectar mensajes entre el ESP32 y el broker.
 
-Sin TLS no hay autenticación del servidor ni integridad del canal. Un atacante que intercepte o redirija el tráfico (ARP spoofing en una red real, DNS falso, proxy) puede:
+### 6.3 Suplantacion (spoofing)
 
-- leer todos los `PUBLISH`;
-- modificar temperatura/humedad antes de que lleguen al suscriptor;
-- inyectar un `CONNACK` / mensajes falsos.
+El topico `home/hall/temperature1` es publico y predecible. Cualquier cliente MQTT puede:
 
-Wokwi aísla parcialmente la red del alumno, pero el tramo Internet hasta HiveMQ es MQTT plano.
-
-### 5.3 Suplantación (spoofing) de publicador o suscriptor
-
-El tópico `home/hall/temperature1` es público y predecible. Cualquier cliente MQTT en Internet puede:
-
-- publicar JSON falsos con el mismo formato → el LCD mostraría datos inventados;
+- publicar JSON falsos con el mismo formato;
 - suscribirse y copiar el flujo;
-- reutilizar un `clientId` parecido (HiveMQ público no autentica identidad).
+- reutilizar un `clientId` similar (sin autenticacion de identidad).
 
-No hay lista de control de acceso (ACL) ni certificados de cliente.
+### 6.4 DDoS / abuso
 
-### 5.4 DDoS / abuso del broker y de los dispositivos
+- Inundar el topico con muchos `PUBLISH`;
+- abrir miles de conexiones TCP al broker publico;
+- forzar reconnects que agotan recursos del ESP32.
 
-- Inundar el tópico con `PUBLISH` grandes o a alta frecuencia (el ESP32 tiene poca RAM y `PubSubClient` un buffer chico).
-- Abrir miles de conexiones TCP al broker público (abuso de un servicio compartido).
-- `CONNECT` repetidos que agotan recursos del ESP32 (`reconnect` en loop).
+### 6.5 Replay
 
-El broker público de HiveMQ está pensado para pruebas, no para producción, y puede limitar o cortar clientes abusivos.
+Un `PUBLISH` capturado se puede reenviar. No hay nonce, timestamp validado ni firma.
 
-### 5.5 Replay
+### 6.6 Enumeracion de topicos
 
-Un `PUBLISH` capturado se puede reenviar más tarde. No hay nonce, timestamp validado ni firma. El suscriptor acepta cualquier JSON bien formado.
+En brokers mal configurados, suscribirse a `#` puede descubrir canales ajenos. Un topico generico aumenta colisiones entre alumnos.
 
-### 5.6 Enumeración de tópicos
+### 6.7 Contramedidas (produccion)
 
-En brokers mal configurados se puede suscribir a `#` o `+` y descubrir canales ajenos. En HiveMQ público hay aislamiento relativo, pero **elegir un tópico genérico** aumenta la probabilidad de colisión con otros alumnos o de que alguien “se cuele” al mismo canal.
-
-### 5.7 Contramedidas (producción)
-
-| Problema | Mitigación |
+| Problema | Mitigacion |
 |----------|------------|
-| Texto claro | MQTTS puerto 8883 / TLS 1.2+ |
+| Texto claro | MQTTS 8883 / TLS 1.2+ |
 | Sin identidad | Usuario/password o certificados X.509 |
-| Tópico abierto | ACL por cliente y tópico (`home/<user>/hall/temperature`) |
+| Topico abierto | ACL por cliente y topico |
 | Spoofing / replay | Payload firmado o nonce + timestamp |
-| DDoS | Rate limit, autenticación, broker propio |
-| Secretos en firmware | No hardcodear credenciales; usar partición NVS |
+| DDoS | Rate limit, autenticacion, broker propio |
 
 ---
 
-## 6. Reflexión
+## 7. Reflexion
 
 ### Funcionamiento
 
-El modelo pub/sub desacopla a los nodos: el publicador no conoce la IP del suscriptor. El broker enruta por **tópico**. Eso es el núcleo de muchas redes IoT (telemetría de sensores, comandos a actuadores).
+El modelo pub/sub desacopla a los nodos: el publicador no conoce la IP del suscriptor. El broker enruta por **topico**. Eso es el nucleo de muchas redes IoT.
 
-En Wokwi la parte de red es real hacia Internet: el firmware usa la misma pila `WiFi` + TCP + MQTT que en una placa física. Por eso el PCAP es útil para ver `CONNECT`/`PUBLISH` de verdad.
+En Wokwi la red hacia Internet es real: el firmware usa la misma pila `WiFi` + TCP + MQTT que en una placa fisica, por eso el PCAP muestra `CONNECT`/`PUBLISH` reales.
 
 ### Dificultades
 
-1. **Dos firmwares, dos simulaciones.** PlatformIO/Wokwi compilán un ELF por proyecto. Hay que abrir publicador y suscriptor por separado (o usar el script Python como segundo consumidor).
-2. **Broker público compartido.** Si otro grupo usa el mismo tópico, aparecen mensajes ajenos. El nombre `home/hall/temperature1` es el del enunciado; en un lab real convendría sufijarlo con un id de grupo.
-3. **1883 vs WebSocket 8884.** El ESP32 habla TCP 1883. El cliente web de HiveMQ usa WebSocket. Es el mismo broker, distinto transporte.
-4. **Reconnect.** Si solo se llama `mqtt.connect()` en `setup()`, un corte deja el nodo mudo. El loop reintenta cada 3 s.
-5. **LCD de 16 caracteres.** El tópico completo no cabe; se muestran `temp`/`hum` parseados con ArduinoJson.
+1. **Dos firmwares, dos simulaciones.** Hay que abrir publicador y suscriptor por separado (o usar el script Python).
+2. **Broker publico compartido.** Si otro grupo usa el mismo topico, aparecen mensajes ajenos.
+3. **1883 vs WebSocket 8884.** El ESP32 habla TCP 1883; el cliente web de HiveMQ usa WebSocket.
+4. **Reconnect.** Si MQTT cae, el loop reintenta cada 3 s.
+5. **LCD 16 caracteres.** Se muestran `temp`/`hum` parseados, no el topico completo.
 
-### Conclusión de seguridad
+### Conclusion de seguridad
 
-La práctica demuestra que **“funciona” no equivale a “es seguro”**. Una captura de pocos paquetes basta para leer datos, impersonar al sensor y entender la arquitectura. Para un sistema real haría falta TLS, autenticación y tópicos no adivinables.
+Que el sistema “funcione” no implica que sea seguro. Una captura corta basta para leer datos, impersonar al sensor y entender la arquitectura. En produccion haria falta TLS, autenticacion y topicos no adivinables.
 
 ---
 
-## 7. Referencias
+## 8. Referencias
 
 - HiveMQ Public Broker: https://www.hivemq.com/mqtt/public-mqtt-broker/
-- PubSubClient: https://www.luisllamas.es/en/send-receive-messages-mqtt-arduino-pubsubclient-library/
 - Wokwi: https://wokwi.com/
-- Wireshark SSL/TLS reference (contraste con MQTTS): https://www.wireshark.org/docs/dfref/s/ssl.html
+- Wireshark: https://www.wireshark.org/
+- PubSubClient / MQTT Arduino: https://www.luisllamas.es/en/send-receive-messages-mqtt-arduino-pubsubclient-library/

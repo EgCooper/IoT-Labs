@@ -1,37 +1,51 @@
-# L5-A1 — Red IoT MQTT (Publicador y Suscriptor)
+# L5-A1 — Red IoT MQTT (Publicador / Suscriptor)
 
-Dos ESP32 en Wokwi se conectan a la WiFi `Wokwi-GUEST` y al broker público **HiveMQ**. El publicador envía lecturas simuladas al tópico `home/hall/temperature1`; el suscriptor las muestra en Serial y en un LCD I2C.
+Red IoT minima con WiFi (Wokwi), broker MQTT publico (HiveMQ), un ESP32 publicador y un ESP32 suscriptor.
 
-Informe técnico: [INFORME.md](INFORME.md)
+Informe tecnico: [INFORME.md](INFORME.md)
 
 ## Estructura
 
 ```
-publisher/src/publisher.ino     # ESP32 publicador
-subscriber/src/subscriber.ino   # ESP32 suscriptor + LCD
+publisher/src/publisher.ino     # ESP32 publicador (.ino)
+subscriber/src/subscriber.ino   # ESP32 suscriptor + LCD (.ino)
 tools/mqtt_subscriber.py        # suscriptor opcional en Python
-INFORME.md
+INFORME.md                      # informe tecnico
+docs/capturas/                  # capturas serial / Wireshark
 ```
 
-## Cómo ejecutar
+## Parametros
+
+| Item | Valor |
+|------|--------|
+| WiFi | SSID `Wokwi-GUEST`, password vacia |
+| Broker | `broker.hivemq.com:1883` |
+| Topico | `home/hall/temperature1` |
+
+## Como ejecutar
 
 ```powershell
-# 1) Publicador
+# Publicador
 cd publisher
 pio run
-# Abrir diagram.json y Start simulation (Wokwi)
+# Abrir diagram.json -> Start simulation (Wokwi)
 
-# 2) Suscriptor (otra terminal / otra ventana Wokwi)
-cd subscriber
+# Suscriptor (otra ventana)
+cd ..\subscriber
 pio run
-# Abrir diagram.json y Start simulation
+# Abrir diagram.json -> Start simulation
 ```
 
-WiFi Wokwi: SSID `Wokwi-GUEST`, password vacía.  
-Broker: `broker.hivemq.com:1883`.  
-Tópico: `home/hall/temperature1`.
+Hacen falta **dos** simulaciones Wokwi al mismo tiempo.
 
-## Monitoreo de red
+### Cliente Python (opcional)
 
-En Wokwi: icono WiFi → descargar PCAP → abrir en Wireshark.  
+```powershell
+pip install -r tools/requirements.txt
+python tools/mqtt_subscriber.py
+```
+
+## Wireshark
+
+Con la simulacion corriendo: icono WiFi en Wokwi -> descargar PCAP -> abrir en Wireshark.  
 Filtros: `mqtt` o `tcp.port == 1883`. Detalle en el informe.

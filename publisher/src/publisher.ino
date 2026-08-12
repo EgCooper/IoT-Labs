@@ -1,7 +1,9 @@
 /**
  * Publicador MQTT - ESP32 (Wokwi)
- * Publica lecturas simuladas de temperatura/humedad
- * al tópico home/hall/temperature1
+ *
+ * Se conecta a WiFi Wokwi-GUEST y al broker publico HiveMQ.
+ * Publica lecturas simuladas (temperatura/humedad) al topico
+ * home/hall/temperature1 cada pocos segundos.
  */
 #include <WiFi.h>
 #include <PubSubClient.h>
@@ -63,7 +65,7 @@ void conectarMqtt() {
 }
 
 void publicarLectura() {
-  // Datos simulados (sensor ficticio): temperatura 18.0–32.9 °C, humedad 35–75 %
+  // Sensor ficticio: temperatura 18.0-32.9 C, humedad 35.0-75.0 %
   float temperatura = 18.0f + (random(0, 150) / 10.0f);
   float humedad = 35.0f + (random(0, 401) / 10.0f);
 
@@ -77,7 +79,11 @@ void publicarLectura() {
       humedad);
 
   bool ok = mqtt.connected() && mqtt.publish(MQTT_TOPIC, payload);
-  Serial.printf("[PUB] topic=%s payload=%s result=%s\n", MQTT_TOPIC, payload, ok ? "OK" : "FAIL");
+  Serial.printf(
+      "[PUB] topic=%s payload=%s result=%s\n",
+      MQTT_TOPIC,
+      payload,
+      ok ? "OK" : "FAIL");
 
   digitalWrite(PIN_LED, HIGH);
   delay(80);
@@ -103,6 +109,7 @@ void setup() {
 
 void loop() {
   conectarWiFi();
+
   if (!mqtt.connected()) {
     static unsigned long lastMqttTry = 0;
     if (millis() - lastMqttTry >= MQTT_RETRY_MS) {
@@ -110,6 +117,7 @@ void loop() {
       conectarMqtt();
     }
   }
+
   mqtt.loop();
 
   if (millis() - lastPublishMs >= PUBLISH_MS) {

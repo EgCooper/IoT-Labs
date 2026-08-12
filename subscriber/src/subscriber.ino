@@ -1,7 +1,8 @@
 /**
  * Suscriptor MQTT - ESP32 (Wokwi)
- * Se suscribe a home/hall/temperature1 y muestra el payload
- * en el monitor serial y en un LCD I2C 16x2.
+ *
+ * Se suscribe al topico home/hall/temperature1.
+ * Muestra el payload en el monitor serial y en un LCD I2C 16x2.
  */
 #include <WiFi.h>
 #include <Wire.h>
@@ -134,6 +135,7 @@ void setup() {
 
 void loop() {
   conectarWiFi();
+
   if (!mqtt.connected()) {
     static unsigned long lastMqttTry = 0;
     if (millis() - lastMqttTry >= MQTT_RETRY_MS) {
@@ -141,5 +143,6 @@ void loop() {
       conectarMqtt();
     }
   }
+
   mqtt.loop();
 }
