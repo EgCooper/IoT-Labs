@@ -10,11 +10,11 @@ El firmware está en `src/main.cpp`. Cada 5 s hago un `GET` a `https://callback-
 
 Consulta previa del endpoint (Bruno):
 
-![Respuesta del endpoint](img/bruno.png)
+![Respuesta del endpoint](./Activity-2/img/bruno.png)
 
 Simulación en Wokwi (temp. 22.8 °C → LED azul, buzzer apagado):
 
-![Simulación Wokwi](img/view.png)
+![Simulación Wokwi](./Activity-2/img/view.png)
 
 ## Explicación lógica
 
