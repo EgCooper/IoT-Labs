@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visualización IoT · Sigfox</title>
+    <style>
+      :root {
+        --bg: #0b1220;
+        --panel: #121a2b;
+        --line: #24324c;
+        --text: #e8eefc;
+        --muted: #93a0bb;
+        --accent: #3ee0b4;
+        --warn: #f5c542;
+        --danger: #ff6b6b;
+        --blue: #4ea1ff;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top, #18233a, var(--bg) 48%);
+        color: var(--text);
+        min-height: 100vh;
+      }
+      header, main { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+      h1 { margin: 0 0 6px; font-size: 1.6rem; }
+      .sub { color: var(--muted); margin-bottom: 18px; }
+      .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+      button {
+        background: #1c2b46;
+        color: var(--text);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 14px;
+        cursor: pointer;
+      }
+      button.primary { background: #14624c; border-color: #1f8f71; }
+      .status { color: var(--muted); font-size: 0.92rem; }
+      .gauges {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+        margin: 18px 0;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 16px;
+      }
+      .gauge { text-align: center; }
+      .ring {
+        width: 132px;
+        height: 132px;
+        margin: 8px auto 10px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: conic-gradient(var(--accent) 0deg, #1c2943 0deg);
+      }
+      .hole {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        background: var(--panel);
+        display: grid;
+        place-items: center;
+        font-size: 1.25rem;
+        font-weight: 700;
+      }
+      table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+      th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+      th { color: var(--muted); font-weight: 600; }
+      pre {
+        background: #0d1524;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px;
+        overflow: auto;
+        font-size: 0.82rem;
+      }
+      .meta { color: var(--muted); font-size: 0.88rem; margin-top: 8px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Visualización IoT (Sigfox)</h1>
+      <p class="sub">
+        API propia: GET <code>/data</code> consulta el endpoint público y
+        POST <code>/visualize</code> alimenta estos gauges.
+      </p>
+      <div class="row">
+        <button class="primary" id="syncBtn">Sincronizar últimos 2</button>
+        <button id="refreshBtn">Refrescar panel</button>
+        <span class="status" id="status">Esperando datos…</span>
+      </div>
+    </header>
+    <main>
+      <section class="gauges" id="gauges">
+        <article class="card gauge"><div class="ring" data-k="temperature"><div class="hole">--</div></div><div>Temperatura (°C)</div></article>
+        <article class="card gauge"><div class="ring" data-k="humidity"><div class="hole">--</div></div><div>Humedad (%)</div></article>
+        <article class="card gauge"><div class="ring" data-k="pressure"><div class="hole">--</div></div><div>Presión (hPa)</div></article>
+        <article class="card gauge"><div class="ring" data-k="battery"><div class="hole">--</div></div><div>Batería (%)</div></article>
+      </section>
+
+      <section class="card">
+        <h3>Últimos registros visualizados</h3>
+        <div class="meta" id="deviceMeta"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Device</th>
+              <th>Temp</th>
+              <th>Hum</th>
+              <th>Presión</th>
+              <th>Batería</th>
+              <th>Signal</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </section>
+
+      <section class="card" style="margin-top:14px">
+        <h3>JSON recibido</h3>
+        <pre id="jsonBox">[]</pre>
+      </section>
+    </main>
+    <script>
+      const LIMITS = {
+        temperature: { min: -10, max: 50, color: "#ff8a4e" },
+        humidity: { min: 0, max: 100, color: "#4ea1ff" },
+        pressure: { min: 980, max: 1040, color: "#c084fc" },
+        battery: { min: 0, max: 100, color: "#3ee0b4" },
+      };
+
+      function setStatus(text) {
+        document.getElementById("status").textContent = text;
+      }
+
+      function toDeg(value, min, max) {
+        const ratio = Math.max(0, Math.min(1, (value - min) / (max - min)));
+        return ratio * 360;
+      }
+
+      function paintGauges(record) {
+        document.querySelectorAll(".ring").forEach((el) => {
+          const key = el.dataset.k;
+          const cfg = LIMITS[key];
+          const value = record?.[key];
+          const hole = el.querySelector(".hole");
+          if (typeof value !== "number") {
+            hole.textContent = "--";
+            el.style.background = "conic-gradient(#1c2943 0deg, #1c2943 360deg)";
+            return;
+          }
+          const deg = toDeg(value, cfg.min, cfg.max);
+          hole.textContent = key === "pressure" ? value.toFixed(1) : value.toFixed(1);
+          el.style.background = `conic-gradient(${cfg.color} ${deg}deg, #1c2943 ${deg}deg)`;
+        });
+      }
+
+      function renderTable(records) {
+        const tbody = document.getElementById("rows");
+        tbody.innerHTML = records
+          .map(
+            (r) => `<tr>
+              <td>${r.timestamp ?? "-"}</td>
+              <td>${r.device ?? "-"}</td>
+              <td>${r.temperature ?? "-"}</td>
+              <td>${r.humidity ?? "-"}</td>
+              <td>${r.pressure ?? "-"}</td>
+              <td>${r.battery ?? "-"}</td>
+              <td>${r.signal ?? "-"}</td>
+            </tr>`
+          )
+          .join("");
+        const last = records.at(-1);
+        document.getElementById("deviceMeta").textContent = last
+          ? `${last.device ?? "N/A"} · ${last.location ?? ""} · ${last.type ?? ""}`
+          : "Sin datos";
+        document.getElementById("jsonBox").textContent = JSON.stringify(records, null, 2);
+      }
+
+      async function refreshPanel() {
+        const res = await fetch("/visualize/latest");
+        const body = await res.json();
+        const records = body.records || [];
+        paintGauges(records.at(-1));
+        renderTable(records);
+        setStatus(body.updated_at ? `Última visualización: ${body.updated_at}` : "Aún no hay POST /visualize");
+      }
+
+      async function syncLastTwo() {
+        setStatus("Consultando GET /data y enviando POST /visualize…");
+        const dataRes = await fetch("/data");
+        const dataBody = await dataRes.json();
+        if (!dataRes.ok) {
+          setStatus(dataBody.error || "Error en GET /data");
+          return;
+        }
+        const records = Array.isArray(dataBody) ? dataBody : dataBody.data || [];
+        const visRes = await fetch("/visualize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(records),
+        });
+        const visBody = await visRes.json();
+        if (!visRes.ok) {
+          setStatus(visBody.error || "Error en POST /visualize");
+          return;
+        }
+        await refreshPanel();
+      }
+
+      document.getElementById("syncBtn").addEventListener("click", syncLastTwo);
+      document.getElementById("refreshBtn").addEventListener("click", refreshPanel);
+      setInterval(refreshPanel, 5000);
+      refreshPanel();
+    </script>
+  </body>
+</html>

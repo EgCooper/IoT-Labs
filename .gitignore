@@ -1,0 +1,13 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# PlatformIO leftovers
+.pio/
+
+# Editor
+.vscode/
+.DS_Store
+Thumbs.db
