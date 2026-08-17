@@ -1,45 +1,64 @@
-# Actividad 2 — Consumo de datos externos
+# Actividad 3 — Decodificador de hexData
 
-En este laboratorio conecté un ESP32 a WiFi, consumí un endpoint HTTP y usé esos datos para controlar LEDs, un buzzer y una LCD 20x4.
+Herramienta en Python que consume el endpoint público, filtra los objetos con `hexData` y decodifica el payload binario a temperatura, humedad y presión.
+
+**Biblioteca para decodificar binarios:** `struct` (biblioteca estándar de Python).  
+HTTP y JSON también van con biblioteca estándar: `urllib.request` y `json`.
 
 ## Código
 
-El firmware está en `src/main.cpp`. Cada 5 s hago un `GET` a `https://callback-iot.up.railway.app/data`, parseo el JSON y actualizo la LCD y los actuadores.
+El decodificador está en [`Activity-3/decoder.py`](Activity-3/decoder.py). Hace un `GET` a `https://mpab3475e4567ee98b2d.free.beeceptor.com/data`, se queda solo con los objetos que tienen `hexData` y convierte los primeros 12 bytes en tres `float32` little-endian.
+
+```bash
+python .\Activity-3\decoder.py
+```
+
+El desempaquetado usa `struct`:
+
+```python
+temperatura, humedad, presion = struct.unpack_from("<fff", raw, 0)
+```
+
+| Campo        | Tipo    | Bytes | Endianness    |
+|--------------|---------|-------|---------------|
+| temperatura  | float32 | 0–3   | little-endian |
+| humedad      | float32 | 4–7   | little-endian |
+| presión      | float32 | 8–11  | little-endian |
 
 ## Capturas
 
-Consulta previa del endpoint (Bruno):
+Salida en consola (`python .\Activity-3\decoder.py`):
 
-![Respuesta del endpoint](./Activity-2/img/bruno.png)
+![Salida del decodificador](./Activity-3/img/output.png)
 
-Simulación en Wokwi (temp. 22.8 °C → LED azul, buzzer apagado):
+En esa corrida el payload `00005F420000C44100007D44` quedó en **55.75 °C**, **24.50 %** y **1012.00 hPa**. El mock cambia entre consultas; el formato de salida se mantiene.
 
-![Simulación Wokwi](./Activity-2/img/view.png)
+## Explicación del proceso de decodificación: conversión de hex a bytes y desempaquetado
 
-## Explicación lógica
+1. Consumo el JSON con `urllib.request`. La API devuelve un **array**, así que recorro la lista y descarto cualquier objeto sin `hexData`.
+2. Limpio el string hexadecimal (espacios) y lo paso a bytes con `bytes.fromhex`. Dos caracteres hex = 1 byte, así que 24 caracteres son 12 bytes.
+3. Compruebo que haya al menos 12 bytes. Si el hex es inválido o el payload es corto, el error va a stderr.
+4. Con `struct.unpack_from("<fff", raw, 0)` interpreto esos 12 bytes como tres `float32` little-endian: temperatura, humedad y presión.
+5. Imprimo dispositivo, estado, timestamp, el `hexData` original y los tres sensores.
 
-1. Me conecto a WiFi (`Wokwi-GUEST`).
-2. Consumo el JSON. La API devuelve un **array**, así que tomo el objeto en el índice `[0]`.
-3. Muestro temperatura, humedad, presión, batería y señal en la LCD.
-4. Si `temperature > 30 °C` enciendo LED rojo y buzzer; si no, LED azul y buzzer apagado.
-5. Si falla el WiFi, el HTTP o el parseo, muestro `Error API`.
+Ejemplo del payload de la captura:
 
-## Reflexión
+```text
+00005F42  0000C441  00007D44
+   temp      hum      pres
+```
 
-**¿Qué dificultades encontré al consumir datos desde un endpoint externo y cómo las resolví?**  
-Al principio asumí que el JSON era un objeto, pero venía como array. Lo comprobé en Bruno y ajusté el parseo para leer `doc[0]`. También validé el código HTTP y el error de `deserializeJson` para no actuar con datos inválidos.
+`<fff` significa tres floats de 32 bits, little-endian. En little-endian `00005F42` se lee como `0x425F0000` → 55.75.
 
-**¿Qué importancia tiene para un sistema IoT integrar datos de fuentes externas?**  
-El dispositivo no necesita tener todos los sensores encima: puede reaccionar a datos de la nube u otros nodos. Eso permite monitoreo remoto y decisiones compartidas.
+## Reflexión sobre el procesamiento de datos binarios en sistemas IoT
 
-**¿Cómo aseguré que los datos fueran correctos y actualizados?**  
-Consulté el endpoint a mano, imprimí el payload por Serial, verifiqué HTTP 200 y el parseo, y refresqué cada 5 s.
+**¿Cómo identificaron el formato correcto del dato (float 32 bits, little-endian)?**  
+Lo dio el enunciado: tres `float32` little-endian, 4 bytes cada uno, 12 bytes en total. En `struct` eso es `"<fff"`: `<` = little-endian y `f` = float de 32 bits. Lo verifiqué con el `hexData` de ejemplo `000071420000DC4100407F44`, que desempaqueta a 60.25 °C, 27.50 % y 1021.00 hPa. Si hubiera usado big-endian (`>fff`) los valores salían absurdos.
 
-**¿Qué consideraciones de seguridad o confiabilidad tomé?**  
-Usé HTTPS, comprobé que hubiera WiFi antes del `GET` y mostré un error en LCD si fallaba. El endpoint es público y sin autenticación: en un caso real haría falta un token y no bloquear el loop si la red cae.
+**¿Qué problemas enfrentaron con la decodificación y cómo los resolvieron?**  
+Al correr el script desde la carpeta padre, Python no encontraba `Activity-3/decoder.py`; había que ejecutarlo desde `IoT-Labs`. En la consola de Windows, `°C` y `Presión` se veían rotos por la codificación; lo resolví reconfigurando stdout a UTF-8. También filtré solo objetos con `hexData`, porque el enunciado pide ignorar el resto, y validé longitud e hex antes de `unpack` para no romper el script con un payload corto.
 
-**¿Qué mejoras agregaría?**  
-Reintentos con backoff, guardar la última lectura válida, autenticación, timeout de la petición y alertas también por batería o señal baja.
+**¿Por qué es importante conocer el formato de datos al integrar sistemas IoT?**  
+El dispositivo envía bytes crudos, no JSON con nombres de campo. Sin saber tipo, tamaño y endianness, los mismos 12 bytes se leen como otra temperatura, otra humedad u otra presión. En IoT (Sigfox, LoRa, BLE) el payload es corto a propósito: hay que pactar el layout entre firmware y backend. Si no, el sistema “funciona” pero muestra datos falsos.
 
 ## Video
-
