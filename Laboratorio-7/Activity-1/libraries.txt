@@ -1,0 +1,3 @@
+# Bibliotecas Wokwi (simulador web). PlatformIO las resuelve con lib_deps.
+DHT sensor library for ESPx
+LiquidCrystal I2C

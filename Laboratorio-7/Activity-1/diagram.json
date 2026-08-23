@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "author": "IoT Labs — Actividad 4 Nodo urbano",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": 80.74,
+      "left": 43.26,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht",
+      "top": -24.9,
+      "left": -149.4,
+      "attrs": { "temperature": "24", "humidity": "50" }
+    },
+    {
+      "type": "wokwi-photoresistor-sensor",
+      "id": "ldr",
+      "top": 214.4,
+      "left": -210.2,
+      "attrs": { "lux": "500" }
+    },
+    {
+      "type": "wokwi-hc-sr04",
+      "id": "us",
+      "top": -94.5,
+      "left": 254.3,
+      "attrs": { "distance": "200" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "ledR",
+      "top": 121.2,
+      "left": 320.6,
+      "attrs": { "color": "red", "label": "Semaforo" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "ledG",
+      "top": 188.4,
+      "left": 320.6,
+      "attrs": { "color": "green", "label": "Paso" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "ledB",
+      "top": 255.6,
+      "left": 320.6,
+      "attrs": { "color": "blue", "label": "Ventilacion" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "rR",
+      "top": 136.55,
+      "left": 249.6,
+      "rotate": 90,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "rG",
+      "top": 203.75,
+      "left": 249.6,
+      "rotate": 90,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "rB",
+      "top": 270.95,
+      "left": 249.6,
+      "rotate": 90,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-buzzer",
+      "id": "bz",
+      "top": 318,
+      "left": 297,
+      "attrs": { "volume": "0.25" }
+    },
+    {
+      "type": "wokwi-lcd1602",
+      "id": "lcd",
+      "top": 371.51,
+      "left": -32.72,
+      "attrs": { "pins": "i2c", "background": "blue", "color": "white" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+
+    [ "dht:VCC", "esp:3V3", "red", [ "v0", "h19.2", "v38.4" ] ],
+    [ "dht:GND", "esp:GND.2", "black", [ "v19.2", "h48", "v201.6" ] ],
+    [ "dht:SDA", "esp:4", "orange", [ "v0", "h57.3", "v182.4" ] ],
+
+    [ "ldr:VCC", "esp:3V3", "red", [ "h19.2", "v-134.4" ] ],
+    [ "ldr:GND", "esp:GND.1", "black", [ "h19.2", "v-19.2", "h192" ] ],
+    [ "ldr:AO", "esp:34", "gold", [ "h38.4", "v-57.6" ] ],
+
+    [ "us:VCC", "esp:5V", "red", [ "v19.2", "h-86.4", "v259.2" ] ],
+    [ "us:GND", "esp:GND.3", "black", [ "v28.8", "h-67.2", "v268.8" ] ],
+    [ "us:TRIG", "esp:5", "green", [ "v38.4", "h-48", "v192" ] ],
+    [ "us:ECHO", "esp:18", "cyan", [ "v48", "h-28.8", "v163.2" ] ],
+
+    [ "esp:25", "rR:2", "red", [ "h19.2", "v38.4" ] ],
+    [ "rR:1", "ledR:A", "red", [ "h0" ] ],
+    [ "ledR:C", "esp:GND.3", "black", [ "v48", "h-192" ] ],
+
+    [ "esp:26", "rG:2", "green", [ "h28.8", "v86.4" ] ],
+    [ "rG:1", "ledG:A", "green", [ "h0" ] ],
+    [ "ledG:C", "esp:GND.3", "black", [ "v28.8", "h-192" ] ],
+
+    [ "esp:27", "rB:2", "blue", [ "h38.4", "v134.4" ] ],
+    [ "rB:1", "ledB:A", "blue", [ "h0" ] ],
+    [ "ledB:C", "esp:GND.3", "black", [ "v19.2", "h-192" ] ],
+
+    [ "bz:1", "esp:GND.3", "black", [ "v19.2", "h-163.2" ] ],
+    [ "bz:2", "esp:14", "violet", [ "v9.6", "h-28.8", "v-182.4" ] ],
+
+    [ "lcd:GND", "esp:GND.2", "black", [ "v-19.2", "h0", "v-76.8" ] ],
+    [ "lcd:VCC", "esp:5V", "red", [ "v-9.6", "h76.8", "v-48" ] ],
+    [ "lcd:SDA", "esp:21", "limegreen", [ "v-28.8", "h96", "v-192" ] ],
+    [ "lcd:SCL", "esp:22", "purple", [ "v-38.4", "h115.2", "v-211.2" ] ]
+  ],
+  "dependencies": {}
+}

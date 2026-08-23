@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "author": "Lab7 A2 — ESP32 suscriptor MQTT",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-led", "id": "ledWifi", "top": 63.6, "left": 234.2, "attrs": { "color": "green", "label": "MQTT" } },
+    { "type": "wokwi-led", "id": "ledHot", "top": 130.8, "left": 234.2, "attrs": { "color": "red", "label": "Sobrecalor" } },
+    { "type": "wokwi-led", "id": "ledDry", "top": 198, "left": 234.2, "attrs": { "color": "orange", "label": "Sequia" } },
+    { "type": "wokwi-resistor", "id": "r1", "top": 79.55, "left": 182.4, "rotate": 90, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r2", "top": 146.75, "left": 182.4, "rotate": 90, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r3", "top": 213.95, "left": 182.4, "rotate": 90, "attrs": { "value": "220" } },
+    { "type": "wokwi-lcd1602", "id": "lcd", "top": 300.7, "left": -32.8, "attrs": { "pins": "i2c", "background": "blue", "color": "white" } }
+  ],
+  "connections": [
+    ["esp:TX", "$serialMonitor:RX", "", []],
+    ["esp:RX", "$serialMonitor:TX", "", []],
+    ["esp:25", "r1:2", "green", []],
+    ["r1:1", "ledWifi:A", "green", []],
+    ["ledWifi:C", "esp:GND.1", "black", []],
+    ["esp:26", "r2:2", "red", []],
+    ["r2:1", "ledHot:A", "red", []],
+    ["ledHot:C", "esp:GND.1", "black", []],
+    ["esp:27", "r3:2", "orange", []],
+    ["r3:1", "ledDry:A", "orange", []],
+    ["ledDry:C", "esp:GND.1", "black", []],
+    ["lcd:GND", "esp:GND.2", "black", []],
+    ["lcd:VCC", "esp:5V", "red", []],
+    ["lcd:SDA", "esp:21", "limegreen", []],
+    ["lcd:SCL", "esp:22", "purple", []]
+  ],
+  "dependencies": {}
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "author": "Lab7 A2 — ESP32 publicador MQTT",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-dht22", "id": "dht", "top": -19.3, "left": 225.8, "attrs": { "temperature": "36", "humidity": "28" } },
+    { "type": "wokwi-led", "id": "ledWifi", "top": 159.6, "left": 234.2, "attrs": { "color": "green", "label": "WiFi" } },
+    { "type": "wokwi-led", "id": "ledPub", "top": 226.8, "left": 234.2, "attrs": { "color": "red", "label": "PUB alerta" } },
+    { "type": "wokwi-resistor", "id": "r1", "top": 175.55, "left": 182.4, "rotate": 90, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r2", "top": 242.75, "left": 182.4, "rotate": 90, "attrs": { "value": "220" } }
+  ],
+  "connections": [
+    ["esp:TX", "$serialMonitor:RX", "", []],
+    ["esp:RX", "$serialMonitor:TX", "", []],
+    ["dht:VCC", "esp:3V3", "red", []],
+    ["dht:GND", "esp:GND.1", "black", []],
+    ["dht:SDA", "esp:4", "orange", []],
+    ["esp:25", "r1:2", "green", []],
+    ["r1:1", "ledWifi:A", "green", []],
+    ["ledWifi:C", "esp:GND.2", "black", []],
+    ["esp:26", "r2:2", "red", []],
+    ["r2:1", "ledPub:A", "red", []],
+    ["ledPub:C", "esp:GND.2", "black", []]
+  ],
+  "dependencies": {}
+}

@@ -1,0 +1,235 @@
+{
+  "nodo_id": "lab7-a2-cruce-norte",
+  "topic": "/iot/alertas",
+  "broker": "test.mosquitto.org",
+  "generado_utc": "2026-08-23T19:54:07.359234+00:00",
+  "reglas": {
+    "sobrecalentamiento": "T[d]>T[d-1]>T[d-2] y T≥28.0°C",
+    "sequia": "T>32.0°C y H<35.0%"
+  },
+  "total_eventos": 21,
+  "eventos": [
+    {
+      "id": "OVH-2026-07-12",
+      "tipo": "SOBRECALENTAMIENTO",
+      "fecha": "2026-07-12",
+      "temperatura_c": 28.54,
+      "humedad_pct": 50.0,
+      "t_ma3": 26.58,
+      "t_pendiente_3d": 1.805,
+      "severidad": "media",
+      "justificacion": "Temperatura en aumento tres días consecutivos (24.9 → 26.3 → 28.5 °C) y T≥28 °C."
+    },
+    {
+      "id": "OVH-2026-07-13",
+      "tipo": "SOBRECALENTAMIENTO",
+      "fecha": "2026-07-13",
+      "temperatura_c": 30.81,
+      "humedad_pct": 48.4,
+      "t_ma3": 28.54,
+      "t_pendiente_3d": 2.275,
+      "severidad": "media",
+      "justificacion": "Temperatura en aumento tres días consecutivos (26.3 → 28.5 → 30.8 °C) y T≥28 °C."
+    },
+    {
+      "id": "OVH-2026-07-14",
+      "tipo": "SOBRECALENTAMIENTO",
+      "fecha": "2026-07-14",
+      "temperatura_c": 32.99,
+      "humedad_pct": 44.9,
+      "t_ma3": 30.78,
+      "t_pendiente_3d": 2.225,
+      "severidad": "media",
+      "justificacion": "Temperatura en aumento tres días consecutivos (28.5 → 30.8 → 33.0 °C) y T≥28 °C."
+    },
+    {
+      "id": "OVH-2026-07-15",
+      "tipo": "SOBRECALENTAMIENTO",
+      "fecha": "2026-07-15",
+      "temperatura_c": 35.0,
+      "humedad_pct": 39.6,
+      "t_ma3": 32.93,
+      "t_pendiente_3d": 2.095,
+      "severidad": "alta",
+      "justificacion": "Temperatura en aumento tres días consecutivos (30.8 → 33.0 → 35.0 °C) y T≥28 °C."
+    },
+    {
+      "id": "OVH-2026-07-16",
+      "tipo": "SOBRECALENTAMIENTO",
+      "fecha": "2026-07-16",
+      "temperatura_c": 36.48,
+      "humedad_pct": 38.1,
+      "t_ma3": 34.82,
+      "t_pendiente_3d": 1.745,
+      "severidad": "alta",
+      "justificacion": "Temperatura en aumento tres días consecutivos (33.0 → 35.0 → 36.5 °C) y T≥28 °C."
+    },
+    {
+      "id": "OVH-2026-07-17",
+      "tipo": "SOBRECALENTAMIENTO",
+      "fecha": "2026-07-17",
+      "temperatura_c": 36.64,
+      "humedad_pct": 31.7,
+      "t_ma3": 36.04,
+      "t_pendiente_3d": 0.82,
+      "severidad": "alta",
+      "justificacion": "Temperatura en aumento tres días consecutivos (35.0 → 36.5 → 36.6 °C) y T≥28 °C."
+    },
+    {
+      "id": "DRY-2026-07-17",
+      "tipo": "SEQUIA",
+      "fecha": "2026-07-17",
+      "temperatura_c": 36.64,
+      "humedad_pct": 31.7,
+      "h_ma3": 36.5,
+      "severidad": "media",
+      "justificacion": "T=36.6 °C > 32 °C y H=31.7 % < 35 % (aire caliente y seco: estrés hídrico / incendio de vegetación)."
+    },
+    {
+      "id": "OVH-2026-07-18",
+      "tipo": "SOBRECALENTAMIENTO",
+      "fecha": "2026-07-18",
+      "temperatura_c": 37.15,
+      "humedad_pct": 28.1,
+      "t_ma3": 36.76,
+      "t_pendiente_3d": 0.335,
+      "severidad": "alta",
+      "justificacion": "Temperatura en aumento tres días consecutivos (36.5 → 36.6 → 37.1 °C) y T≥28 °C."
+    },
+    {
+      "id": "DRY-2026-07-18",
+      "tipo": "SEQUIA",
+      "fecha": "2026-07-18",
+      "temperatura_c": 37.15,
+      "humedad_pct": 28.1,
+      "h_ma3": 32.6,
+      "severidad": "media",
+      "justificacion": "T=37.1 °C > 32 °C y H=28.1 % < 35 % (aire caliente y seco: estrés hídrico / incendio de vegetación)."
+    },
+    {
+      "id": "DRY-2026-07-19",
+      "tipo": "SEQUIA",
+      "fecha": "2026-07-19",
+      "temperatura_c": 35.27,
+      "humedad_pct": 29.3,
+      "h_ma3": 29.7,
+      "severidad": "media",
+      "justificacion": "T=35.3 °C > 32 °C y H=29.3 % < 35 % (aire caliente y seco: estrés hídrico / incendio de vegetación)."
+    },
+    {
+      "id": "DRY-2026-07-20",
+      "tipo": "SEQUIA",
+      "fecha": "2026-07-20",
+      "temperatura_c": 37.95,
+      "humedad_pct": 23.7,
+      "h_ma3": 27.0,
+      "severidad": "alta",
+      "justificacion": "T=38.0 °C > 32 °C y H=23.7 % < 35 % (aire caliente y seco: estrés hídrico / incendio de vegetación)."
+    },
+    {
+      "id": "DRY-2026-07-21",
+      "tipo": "SEQUIA",
+      "fecha": "2026-07-21",
+      "temperatura_c": 37.38,
+      "humedad_pct": 25.9,
+      "h_ma3": 26.3,
+      "severidad": "alta",
+      "justificacion": "T=37.4 °C > 32 °C y H=25.9 % < 35 % (aire caliente y seco: estrés hídrico / incendio de vegetación)."
+    },
+    {
+      "id": "DRY-2026-07-22",
+      "tipo": "SEQUIA",
+      "fecha": "2026-07-22",
+      "temperatura_c": 36.87,
+      "humedad_pct": 29.5,
+      "h_ma3": 26.4,
+      "severidad": "media",
+      "justificacion": "T=36.9 °C > 32 °C y H=29.5 % < 35 % (aire caliente y seco: estrés hídrico / incendio de vegetación)."
+    },
+    {
+      "id": "OVH-2026-08-01",
+      "tipo": "SOBRECALENTAMIENTO",
+      "fecha": "2026-08-01",
+      "temperatura_c": 29.74,
+      "humedad_pct": 44.8,
+      "t_ma3": 27.02,
+      "t_pendiente_3d": 2.615,
+      "severidad": "media",
+      "justificacion": "Temperatura en aumento tres días consecutivos (24.5 → 26.8 → 29.7 °C) y T≥28 °C."
+    },
+    {
+      "id": "OVH-2026-08-02",
+      "tipo": "SOBRECALENTAMIENTO",
+      "fecha": "2026-08-02",
+      "temperatura_c": 32.28,
+      "humedad_pct": 37.8,
+      "t_ma3": 29.61,
+      "t_pendiente_3d": 2.73,
+      "severidad": "media",
+      "justificacion": "Temperatura en aumento tres días consecutivos (26.8 → 29.7 → 32.3 °C) y T≥28 °C."
+    },
+    {
+      "id": "OVH-2026-08-03",
+      "tipo": "SOBRECALENTAMIENTO",
+      "fecha": "2026-08-03",
+      "temperatura_c": 34.5,
+      "humedad_pct": 30.8,
+      "t_ma3": 32.17,
+      "t_pendiente_3d": 2.38,
+      "severidad": "alta",
+      "justificacion": "Temperatura en aumento tres días consecutivos (29.7 → 32.3 → 34.5 °C) y T≥28 °C."
+    },
+    {
+      "id": "DRY-2026-08-03",
+      "tipo": "SEQUIA",
+      "fecha": "2026-08-03",
+      "temperatura_c": 34.5,
+      "humedad_pct": 30.8,
+      "h_ma3": 37.8,
+      "severidad": "media",
+      "justificacion": "T=34.5 °C > 32 °C y H=30.8 % < 35 % (aire caliente y seco: estrés hídrico / incendio de vegetación)."
+    },
+    {
+      "id": "OVH-2026-08-04",
+      "tipo": "SOBRECALENTAMIENTO",
+      "fecha": "2026-08-04",
+      "temperatura_c": 36.23,
+      "humedad_pct": 27.9,
+      "t_ma3": 34.34,
+      "t_pendiente_3d": 1.975,
+      "severidad": "alta",
+      "justificacion": "Temperatura en aumento tres días consecutivos (32.3 → 34.5 → 36.2 °C) y T≥28 °C."
+    },
+    {
+      "id": "DRY-2026-08-04",
+      "tipo": "SEQUIA",
+      "fecha": "2026-08-04",
+      "temperatura_c": 36.23,
+      "humedad_pct": 27.9,
+      "h_ma3": 32.2,
+      "severidad": "alta",
+      "justificacion": "T=36.2 °C > 32 °C y H=27.9 % < 35 % (aire caliente y seco: estrés hídrico / incendio de vegetación)."
+    },
+    {
+      "id": "OVH-2026-08-05",
+      "tipo": "SOBRECALENTAMIENTO",
+      "fecha": "2026-08-05",
+      "temperatura_c": 36.9,
+      "humedad_pct": 24.7,
+      "t_ma3": 35.88,
+      "t_pendiente_3d": 1.2,
+      "severidad": "alta",
+      "justificacion": "Temperatura en aumento tres días consecutivos (34.5 → 36.2 → 36.9 °C) y T≥28 °C."
+    },
+    {
+      "id": "DRY-2026-08-05",
+      "tipo": "SEQUIA",
+      "fecha": "2026-08-05",
+      "temperatura_c": 36.9,
+      "humedad_pct": 24.7,
+      "h_ma3": 27.8,
+      "severidad": "alta",
+      "justificacion": "T=36.9 °C > 32 °C y H=24.7 % < 35 % (aire caliente y seco: estrés hídrico / incendio de vegetación)."
+    }
+  ]
+}
